@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Login - Blog App</title>
+	<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+	<header class="header">
+		<div class="navbar">
+			<div class="brand"><span class="dot"></span> Blog App</div>
+			<nav class="nav">
+				<a href="/">Home</a>
+				<a href="/register.html">Register</a>
+			</nav>
+		</div>
+	</header>
+	<div class="container auth">
+		<div class="panel">
+			<h2 style="margin:0 0 8px;">Welcome back</h2>
+			<p class="muted" style="margin:0 0 16px;">Log in to continue.</p>
+			<form id="loginForm" class="form">
+				<div>
+					<label class="label">Email</label>
+					<input class="input" type="email" id="email" required />
+				</div>
+				<div>
+					<label class="label">Password</label>
+					<input class="input" type="password" id="password" required />
+				</div>
+				<div style="display:flex;gap:10px;align-items:center;">
+					<button type="submit" class="btn">Login</button>
+					<a class="btn link" href="/register.html">Create account</a>
+				</div>
+				<p id="msg" class="msg error"></p>
+			</form>
+		</div>
+	</div>
+	<script>
+		document.getElementById('loginForm').addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const email = document.getElementById('email').value.trim();
+			const password = document.getElementById('password').value;
+			const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+			const data = await res.json();
+			if(!res.ok){ document.getElementById('msg').textContent = data.msg || data.error || 'Login failed'; return; }
+			localStorage.setItem('token', data.token);
+			localStorage.setItem('userName', data.user?.name || '');
+			location.href = '/';
+		});
+	</script>
+</body>
+</html>

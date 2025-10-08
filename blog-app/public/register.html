@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Register - Blog App</title>
+	<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+	<header class="header">
+		<div class="navbar">
+			<div class="brand"><span class="dot"></span> Blog App</div>
+			<nav class="nav">
+				<a href="/">Home</a>
+				<a href="/login.html">Login</a>
+			</nav>
+		</div>
+	</header>
+	<div class="container auth">
+		<div class="panel">
+			<h2 style="margin:0 0 8px;">Create your account</h2>
+			<p class="muted" style="margin:0 0 16px;">Sign up to start writing.</p>
+			<form id="registerForm" class="form">
+				<div>
+					<label class="label">Name</label>
+					<input class="input" type="text" id="name" required />
+				</div>
+				<div>
+					<label class="label">Email</label>
+					<input class="input" type="email" id="email" required />
+				</div>
+				<div>
+					<label class="label">Password</label>
+					<input class="input" type="password" id="password" required />
+				</div>
+				<div style="display:flex;gap:10px;align-items:center;">
+					<button type="submit" class="btn">Create account</button>
+					<a class="btn link" href="/login.html">I already have an account</a>
+				</div>
+				<p id="msg" class="msg error"></p>
+			</form>
+		</div>
+	</div>
+	<script>
+		document.getElementById('registerForm').addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const name = document.getElementById('name').value.trim();
+			const email = document.getElementById('email').value.trim();
+			const password = document.getElementById('password').value;
+			const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) });
+			const data = await res.json();
+			if(!res.ok){ document.getElementById('msg').textContent = data.msg || data.error || 'Registration failed'; return; }
+			location.href = '/login.html';
+		});
+	</script>
+</body>
+</html>

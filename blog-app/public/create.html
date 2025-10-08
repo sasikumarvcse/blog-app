@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Create Post - Blog App</title>
+	<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+	<header class="header">
+		<div class="navbar">
+			<div class="brand"><span class="dot"></span> Blog App</div>
+			<nav class="nav">
+				<a href="/">Home</a>
+				<button id="logoutBtn" class="btn secondary" style="display:none;">Logout</button>
+			</nav>
+		</div>
+	</header>
+	<div class="container">
+		<div class="badge">New post</div>
+		<h2 class="section-title">Share your thoughts</h2>
+		<div class="two-col">
+			<form id="createForm" class="panel form" enctype="multipart/form-data">
+				<div>
+					<label class="label">Title</label>
+					<input class="input" type="text" name="title" required />
+				</div>
+				<div>
+					<label class="label">Subtitle</label>
+					<input class="input" type="text" name="subtitle" />
+				</div>
+				<div>
+					<label class="label">Content</label>
+					<textarea class="textarea" name="content" rows="8" required></textarea>
+				</div>
+				<div>
+					<label class="label">Image</label>
+					<input class="file" type="file" name="image" accept="image/*" />
+				</div>
+				<div style="display:flex;gap:10px;align-items:center;">
+					<button type="submit" class="btn">Publish</button>
+					<a class="btn link" href="/">Cancel</a>
+				</div>
+				<p id="msg" class="msg"></p>
+			</form>
+			<div class="panel">
+				<h3 style="margin:0 0 10px;">Preview</h3>
+				<div id="preview" class="post-card">
+					<div class="post-thumb" id="previewImg"></div>
+					<div class="post-body">
+						<h3 class="post-title" id="previewTitle">Title</h3>
+						<div class="post-meta" id="previewMeta">by You • just now</div>
+						<div class="post-subtitle" id="previewSubtitle">Subtitle</div>
+						<p class="muted" id="previewContent">Start typing content to see preview…</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		const token = localStorage.getItem('token');
+		if(!token){ location.href = '/login.html'; }
+		document.getElementById('logoutBtn').style.display = token ? '' : 'none';
+		document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('token'); localStorage.removeItem('userName'); location.href = '/login.html'; });
+
+		const titleEl = document.querySelector('input[name="title"]');
+		const subtitleEl = document.querySelector('input[name="subtitle"]');
+		const contentEl = document.querySelector('textarea[name="content"]');
+		const imageEl = document.querySelector('input[name="image"]');
+
+		function updatePreview(){
+			document.getElementById('previewTitle').textContent = titleEl.value || 'Title';
+			document.getElementById('previewSubtitle').textContent = subtitleEl.value || 'Subtitle';
+			document.getElementById('previewContent').textContent = contentEl.value ? contentEl.value.substring(0, 180) + (contentEl.value.length>180?'…':'') : 'Start typing content to see preview…';
+		}
+		[titleEl, subtitleEl, contentEl].forEach(el => el.addEventListener('input', updatePreview));
+		imageEl.addEventListener('change', (e) => {
+			const file = e.target.files?.[0];
+			const holder = document.getElementById('previewImg');
+			if(file){
+				const reader = new FileReader();
+				reader.onload = () => { holder.innerHTML = `<img class=\"post-thumb\" src=\"${reader.result}\" alt=\"preview\">`; };
+				reader.readAsDataURL(file);
+			} else {
+				holder.innerHTML = '';
+			}
+		});
+		updatePreview();
+
+		document.getElementById('createForm').addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const form = e.target;
+			const formData = new FormData(form);
+			const res = await fetch('/api/blogs', { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: formData });
+			const data = await res.json();
+			const msg = document.getElementById('msg');
+			if(!res.ok){ msg.className = 'msg error'; msg.textContent = data.msg || data.error || 'Failed to create post'; return; }
+			msg.className = 'msg success'; msg.textContent = 'Post created successfully!';
+			setTimeout(() => location.href = '/', 700);
+		});
+	</script>
+</body>
+</html>
