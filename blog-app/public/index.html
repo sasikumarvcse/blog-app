@@ -52,7 +52,7 @@
 				const card = document.createElement('div');
 				card.className = 'post-card';
 				card.innerHTML = `
-					${b.image ? `<img class="post-thumb" src="${b.image}" alt="${b.title}">` : `<div class=\"post-thumb\"></div>`}
+					${b.image ? `<div class="post-thumb"><img src="${b.image}" alt="${b.title}" loading="lazy"></div>` : `<div class="post-thumb">No image</div>`}
 					<div class="post-body">
 						<h3 class="post-title">${b.title}</h3>
 						<div class="post-meta">by ${b.author} • ${new Date(b.timestamp).toLocaleString()}</div>
